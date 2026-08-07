@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>FantaGargamella 26/27 — Costruttore rosa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --carta:#E6E6E4;
+  --carta-scura:#D5D5D2;
+  --inchiostro:#16151A;
+  --inchiostro-tenue:#56565B;
+  --linea:#C3C3BF;
+  --rosa:#C4004F;
+  --p:#A97A10;
+  --d:#0E6B4F;
+  --c:#1D5AA0;
+  --a:#C4004F;
+  --ok:#0E6B4F;
+  --ko:#A32017;
+  --bianco:#FBFBFA;
+  --su-nero:#F2F2EF;
+  --fondo-scuro:#16151A;
+  --zebra:rgba(22,21,26,.035);
+  --fondo-ok:#E4F0EA;
+  --fondo-ko:#F7E4E1;
+  --fondo-drop:#F3E3E9;
+  --display:"Oswald","Haettenschweiler","Arial Narrow",sans-serif;
+  --testo:"Barlow","Helvetica Neue",Arial,sans-serif;
+}
+html{color-scheme:light dark}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--carta);
+  color:var(--inchiostro);
+  font-family:var(--testo);
+  font-size:15px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--inchiostro);background:var(--carta)}
+option{color:var(--inchiostro);background:#fff}
+::placeholder{color:#8A8A87;opacity:1}
+:focus-visible{outline:2.5px solid var(--rosa);outline-offset:2px}
+
+.testata{border-bottom:3px solid var(--inchiostro);padding:18px 20px 12px;max-width:1280px;margin:0 auto}
+.occhiello{font-family:var(--display);font-weight:500;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--rosa);margin:0 0 2px}
+.masthead{font-family:var(--display);font-weight:700;font-size:clamp(30px,6.2vw,54px);line-height:.92;letter-spacing:-.01em;text-transform:uppercase;margin:0}
+.masthead em{font-style:normal;color:var(--rosa)}
+.sottotitolo{margin:6px 0 0;font-size:13.5px;color:var(--inchiostro-tenue);max-width:62ch}
+
+.impianto{max-width:1280px;margin:0 auto;padding:16px 20px 60px;display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:900px){.impianto{grid-template-columns:1fr;gap:0;padding-bottom:90px}}
+
+.pannello{background:var(--bianco);border:1.5px solid var(--inchiostro);box-shadow:5px 5px 0 rgba(22,21,26,.10)}
+.pannello + .pannello,.pannello + details{margin-top:16px}
+.pannello-testa{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1.5px solid var(--inchiostro);background:var(--fondo-scuro);color:var(--su-nero)}
+.pannello-testa h2{font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.14em;text-transform:uppercase;margin:0}
+.pannello-testa .meta{font-size:11.5px;letter-spacing:.06em;color:#B6B6B1;font-variant-numeric:tabular-nums;text-align:right}
+
+.colonna-rosa{position:sticky;top:12px}
+@media(max-width:900px){.colonna-rosa{position:static}}
+.tabellone{padding:14px 14px 12px}
+.tabellone-righe{display:flex;gap:14px;align-items:flex-end;justify-content:space-between}
+.cifra{font-family:var(--display);font-weight:700;line-height:.85;font-variant-numeric:tabular-nums}
+.cifra-grande{font-size:58px;letter-spacing:-.02em}
+.cifra-grande.rosso{color:var(--ko)}
+.cifra-piccola{font-size:26px;color:var(--inchiostro-tenue)}
+.etichetta{font-family:var(--display);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--inchiostro-tenue);margin-top:5px}
+.barra{margin-top:12px;height:16px;border:1.5px solid var(--inchiostro);display:flex;overflow:hidden;background:var(--carta-scura)}
+.barra span{display:block;transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.barra .seg-P{background:var(--p)}.barra .seg-D{background:var(--d)}.barra .seg-C{background:var(--c)}.barra .seg-A{background:var(--a)}
+.barra .seg-over{background:repeating-linear-gradient(45deg,var(--ko) 0 5px,#7d1811 5px 10px)}
+.legenda{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:11.5px;font-variant-numeric:tabular-nums}
+.legenda i{display:inline-block;width:9px;height:9px;margin-right:5px}
+.esito{margin-top:12px;padding:8px 10px;border-left:4px solid var(--inchiostro);background:var(--carta);font-size:13px}
+.esito.valida{border-color:var(--ok);background:var(--fondo-ok)}
+.esito.errore{border-color:var(--ko);background:var(--fondo-ko)}
+.esito strong{font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:12.5px}
+.esito ul{margin:4px 0 0;padding-left:16px}
+
+.reparto{border-top:1.5px solid var(--linea)}
+.reparto:first-of-type{border-top:0}
+.reparto-testa{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--carta)}
+.pallino{width:11px;height:11px;flex:none}
+.reparto-nome{font-family:var(--display);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+.reparto-conta{margin-left:auto;font-family:var(--display);font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.06em}
+.reparto-conta.pieno{color:var(--ok)}
+.reparto-spesa{font-size:11.5px;color:var(--inchiostro-tenue);font-variant-numeric:tabular-nums}
+.slot{display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px dotted var(--linea);font-size:13.5px}
+.slot.vuoto{color:#A5A5A2;font-style:italic}
+.slot .nome{font-weight:600}
+.slot .club{color:var(--inchiostro-tenue);font-size:12px}
+.slot .costo{margin-left:auto;font-family:var(--display);font-variant-numeric:tabular-nums;font-size:14px}
+.slot .togli{border:1px solid var(--linea);background:transparent;color:var(--ko);width:22px;height:22px;line-height:1;font-size:15px;padding:0;flex:none}
+.slot .togli:hover{background:var(--ko);color:var(--su-nero);border-color:var(--ko)}
+.entra{animation:entra .28s ease-out}
+@keyframes entra{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+
+.azioni{display:flex;flex-wrap:wrap;gap:8px;padding:12px}
+.bottone{border:1.5px solid var(--inchiostro);background:var(--bianco);padding:7px 12px;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.bottone:hover{background:var(--fondo-scuro);color:var(--su-nero)}
+.bottone.primario{background:var(--rosa);border-color:var(--rosa);color:#fff}
+.bottone.primario:hover{background:var(--fondo-scuro);border-color:var(--fondo-scuro);color:var(--su-nero)}
+.bottone[disabled]{opacity:.35;cursor:not-allowed}
+.bottone[disabled]:hover{background:var(--bianco);color:var(--inchiostro)}
+
+.filtri{padding:12px;display:grid;gap:9px}
+.riga-filtri{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cerca{flex:1 1 190px;min-width:0;padding:8px 10px;border:1.5px solid var(--inchiostro);background:var(--carta)}
+select.filtro,input.numero{padding:8px;border:1.5px solid var(--inchiostro);background:var(--carta)}
+input.numero{width:58px;padding:4px}
+.chip{border:1.5px solid var(--inchiostro);background:transparent;padding:6px 11px;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.chip[aria-pressed="true"]{background:var(--fondo-scuro);color:var(--su-nero)}
+.chip.r-P[aria-pressed="true"]{background:var(--p);border-color:var(--p)}
+.chip.r-D[aria-pressed="true"]{background:var(--d);border-color:var(--d)}
+.chip.r-C[aria-pressed="true"]{background:var(--c);border-color:var(--c)}
+.chip.r-A[aria-pressed="true"]{background:var(--a);border-color:var(--a)}
+.interruttore{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--inchiostro-tenue)}
+
+.lista{max-height:min(66vh,720px);overflow:auto;border-top:1.5px solid var(--inchiostro)}
+@media(max-width:900px){.lista{max-height:none}}
+.voce{display:grid;grid-template-columns:26px minmax(0,1fr) 96px 54px 34px;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px dotted var(--linea)}
+.voce:nth-child(even){background:var(--zebra)}
+.voce .ruolo{font-family:var(--display);font-size:11px;font-weight:600;color:#fff;text-align:center;padding:2px 0}
+.voce .giocatore{font-weight:600}
+.solo-mobile{display:none}
+.voce .squadra{font-size:12.5px;color:var(--inchiostro-tenue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.voce .prezzo{font-family:var(--display);font-size:16px;text-align:right;font-variant-numeric:tabular-nums}
+.voce .agg{border:1.5px solid var(--inchiostro);background:transparent;width:28px;height:26px;padding:0;font-family:var(--display);font-size:17px;line-height:1}
+.voce .agg:hover{background:var(--fondo-scuro);color:var(--su-nero)}
+.voce.presa{opacity:.45}
+.voce.presa .agg{background:var(--ok);border-color:var(--ok);color:#fff;cursor:default}
+.voce.bloccata{opacity:.42}
+.voce.bloccata .agg{cursor:not-allowed}
+.voce.nuovo{box-shadow:inset 4px 0 0 var(--rosa)}
+.voce.variato{box-shadow:inset 4px 0 0 var(--c)}
+.motivo{grid-column:2/6;font-size:11.5px;color:var(--ko);margin-top:-2px}
+.tag{font-family:var(--display);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:1px 5px;margin-left:6px;vertical-align:1px;color:#fff}
+.tag.t-nuovo{background:var(--rosa)}
+.tag.t-variato{background:var(--c)}
+.tag.t-uscito{background:var(--inchiostro-tenue)}
+.vecchio{font-size:11px;color:var(--inchiostro-tenue);text-decoration:line-through;margin-right:4px;font-family:var(--display)}
+.vuoto-lista{padding:26px 14px;text-align:center;color:var(--inchiostro-tenue)}
+.vuoto-lista b{display:block;font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;color:var(--inchiostro)}
+
+details.blocco{margin-top:16px;background:var(--bianco);border:1.5px solid var(--inchiostro);box-shadow:5px 5px 0 rgba(22,21,26,.10)}
+details.blocco summary{list-style:none;cursor:pointer;padding:9px 12px;background:var(--fondo-scuro);color:var(--su-nero);font-family:var(--display);font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+details.blocco summary::-webkit-details-marker{display:none}
+details.blocco summary::after{content:" ▾";float:right}
+details.blocco[open] summary::after{content:" ▴"}
+.regole-corpo{padding:14px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.regole-corpo h3{font-family:var(--display);font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 5px;padding-bottom:3px;border-bottom:1.5px solid var(--linea)}
+.regole-corpo ul{margin:0;padding-left:16px;font-size:13px}
+.regole-corpo li{margin-bottom:3px}
+.regole-corpo td{font-size:12.5px;padding:1px 8px 1px 0;font-variant-numeric:tabular-nums}
+.regole-corpo td:last-child{font-family:var(--display);font-size:13px}
+.pos{color:var(--ok)}.neg{color:var(--ko)}
+
+.aggiorna-corpo{padding:14px;font-size:13.5px}
+.aggiorna-corpo p{margin:0 0 10px}
+.dropzona{border:2px dashed var(--linea);padding:16px;text-align:center;background:var(--carta);margin-bottom:10px}
+.dropzona.sopra{border-color:var(--rosa);background:var(--fondo-drop)}
+.riepilogo-diff{border-left:4px solid var(--rosa);background:var(--carta);padding:9px 11px;font-size:13px;margin-top:10px}
+.riepilogo-diff strong{font-family:var(--display);letter-spacing:.08em;text-transform:uppercase;font-size:12.5px}
+
+.versioni{padding:0 12px 12px}
+.versione{display:flex;align-items:center;gap:7px;padding:6px 0;border-top:1px dotted var(--linea);font-size:13px}
+.versione .titolo{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.versione .dettaglio{color:var(--inchiostro-tenue);font-size:11.5px;font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}
+.versione.attiva{background:var(--carta);margin:0 -6px;padding:6px}
+.mini{border:1px solid var(--linea);background:transparent;font-size:11px;padding:3px 7px;font-family:var(--display);letter-spacing:.1em;text-transform:uppercase}
+.mini:hover{background:var(--fondo-scuro);color:var(--su-nero);border-color:var(--inchiostro)}
+.mini.attivo{background:var(--rosa);color:#fff;border-color:var(--rosa)}
+.nota{font-size:11.5px;color:var(--inchiostro-tenue);padding:0 12px 12px;margin:0}
+
+.velo{position:fixed;inset:0;background:rgba(22,21,26,.55);z-index:40;display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow:auto}
+.modale{background:var(--bianco);border:1.5px solid var(--inchiostro);box-shadow:6px 6px 0 rgba(0,0,0,.3);width:100%;max-width:660px}
+.modale-corpo{padding:14px}
+textarea.export{width:100%;height:190px;padding:10px;border:1.5px solid var(--inchiostro);background:var(--carta);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.confronto{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:600px){.confronto{grid-template-columns:1fr}}
+.confronto h4{font-family:var(--display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 5px;padding-bottom:3px;border-bottom:1.5px solid var(--linea)}
+.confronto ul{margin:0;padding-left:16px;font-size:13px}
+.confronto li{margin-bottom:2px}
+.riga-conf{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.numeri-conf{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;text-align:center}
+.numeri-conf div{border:1.5px solid var(--linea);padding:7px}
+.numeri-conf b{display:block;font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.numeri-conf span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--inchiostro-tenue);font-family:var(--display)}
+
+.barra-mobile{display:none}
+.schede{display:none}
+@media(max-width:900px){
+  .barra-mobile{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;border-top:2px solid var(--inchiostro);background:var(--bianco);align-items:center;gap:10px;padding:7px 12px}
+  .barra-mobile .cifra{font-size:24px}
+  .barra-mobile .conta{font-size:11.5px;color:var(--inchiostro-tenue);font-variant-numeric:tabular-nums;line-height:1.25}
+  .barra-mobile .bottone{margin-left:auto}
+  .schede{display:flex;max-width:1280px;margin:14px auto 0;padding:0 20px}
+  .schede button{flex:1;border:1.5px solid var(--inchiostro);background:var(--bianco);padding:9px;font-family:var(--display);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase}
+  .schede button[aria-pressed="true"]{background:var(--fondo-scuro);color:var(--su-nero)}
+  .nascosto-mobile{display:none}
+  .solo-mobile{display:block}
+  .voce{grid-template-columns:26px minmax(0,1fr) 50px 32px}
+}
+
+@media(prefers-color-scheme:dark){
+  :root{
+    --carta:#17171A;
+    --carta-scura:#26262A;
+    --inchiostro:#EDEDEA;
+    --inchiostro-tenue:#A6A6A1;
+    --linea:#3C3C41;
+    --bianco:#202024;
+    --su-nero:#F2F2EF;
+    --fondo-scuro:#0B0B0D;
+    --zebra:rgba(255,255,255,.05);
+    --rosa:#FF3D7F;
+    --p:#D6A83C;--d:#2E9C77;--c:#5B9BE0;--a:#FF3D7F;
+    --ok:#3FB187;--ko:#F07A6C;
+    --fondo-ok:rgba(63,177,135,.16);
+    --fondo-ko:rgba(240,122,108,.16);
+    --fondo-drop:rgba(255,61,127,.14);
+  }
+  .pannello,details.blocco{box-shadow:5px 5px 0 rgba(0,0,0,.5)}
+  .voce .ruolo,.tag{color:#101013}
+  .bottone.primario{color:#101013}
+  .chip.r-P[aria-pressed="true"],.chip.r-D[aria-pressed="true"],.chip.r-C[aria-pressed="true"],.chip.r-A[aria-pressed="true"]{color:#101013}
+  .slot .togli:hover{color:#101013}
+  .modale{box-shadow:6px 6px 0 rgba(0,0,0,.6)}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="testata">
+  <p class="occhiello">Regolamento 2026/27 · scadenza 22.08.2026 ore 17:30 · file 20260807 · V00</p>
+  <h1 class="masthead">Fanta<em>Gargamella</em><br>costruttore rosa</h1>
+  <p class="sottotitolo">600 fantamilioni, 25 giocatori: 3 portieri, 8 difensori, 8 centrocampisti, 6 attaccanti. Quello che risparmi resta tuo per i cambi.</p>
+</header>
+
+<div class="schede" role="tablist">
+  <button id="tabRosa" aria-pressed="true">La rosa</button>
+  <button id="tabListone" aria-pressed="false">Il listone</button>
+</div>
+
+<main class="impianto">
+
+  <div class="colonna-rosa" id="colonnaRosa">
+    <section class="pannello">
+      <div class="pannello-testa">
+        <h2 id="titoloRosa">La tua rosa</h2>
+        <span class="meta" id="metaRosa">0/25 giocatori</span>
+      </div>
+
+      <div class="tabellone">
+        <div class="tabellone-righe">
+          <div>
+            <div class="cifra cifra-grande" id="rimanenza">600</div>
+            <div class="etichetta">Rimanenza</div>
+          </div>
+          <div style="text-align:right">
+            <div class="cifra cifra-piccola" id="spesa">0</div>
+            <div class="etichetta">Spesi su 600</div>
+          </div>
+        </div>
+        <div class="barra" id="barra" aria-hidden="true">
+          <span class="seg-P" style="width:0"></span><span class="seg-D" style="width:0"></span>
+          <span class="seg-C" style="width:0"></span><span class="seg-A" style="width:0"></span>
+          <span class="seg-over" style="width:0"></span>
+        </div>
+        <div class="legenda" id="legenda"></div>
+        <div class="esito" id="esito"></div>
+      </div>
+
+      <div id="reparti"></div>
+
+      <div class="azioni">
+        <button class="bottone primario" id="btnSalva">Salva versione</button>
+        <button class="bottone" id="btnEsporta">Esporta</button>
+        <button class="bottone" id="btnSvuota">Svuota</button>
+      </div>
+    </section>
+
+    <section class="pannello">
+      <div class="pannello-testa">
+        <h2>Versioni salvate</h2>
+        <span class="meta" id="metaVersioni">0/12</span>
+      </div>
+      <div class="versioni" id="listaVersioni"></div>
+      <div class="azioni" style="padding-top:0">
+        <button class="bottone" id="btnConfronta">Confronta due versioni</button>
+      </div>
+      <p class="nota">Il lavoro in corso si salva da solo. Le versioni servono a fermare uno stato e confrontarlo con un altro prima di decidere.<br>Salvataggio: <b id="doveSalvo">—</b>.</p>
+    </section>
+  </div>
+
+  <div id="colonnaListone">
+    <section class="pannello">
+      <div class="pannello-testa">
+        <h2>Il listone</h2>
+        <span class="meta" id="metaListone">—</span>
+      </div>
+
+      <div class="filtri">
+        <div class="riga-filtri">
+          <button class="chip r-T" data-ruolo="T" aria-pressed="true">Tutti</button>
+          <button class="chip r-P" data-ruolo="P" aria-pressed="false">Por</button>
+          <button class="chip r-D" data-ruolo="D" aria-pressed="false">Dif</button>
+          <button class="chip r-C" data-ruolo="C" aria-pressed="false">Cen</button>
+          <button class="chip r-A" data-ruolo="A" aria-pressed="false">Att</button>
+        </div>
+        <div class="riga-filtri">
+          <input class="cerca" id="cerca" type="search" placeholder="Cerca un giocatore…" autocomplete="off">
+          <select class="filtro" id="squadra"><option value="">Tutte le squadre</option></select>
+          <select class="filtro" id="ordine">
+            <option value="costo-desc">Costo ↓</option>
+            <option value="costo-asc">Costo ↑</option>
+            <option value="nome">Nome A–Z</option>
+            <option value="squadra">Squadra</option>
+            <option value="variazione">Variazione ↓</option>
+          </select>
+        </div>
+        <div class="riga-filtri">
+          <label class="interruttore"><input type="checkbox" id="soloBudget"> Solo entro la rimanenza</label>
+          <label class="interruttore"><input type="checkbox" id="nascondiPresi" checked> Nascondi già scelti</label>
+          <label class="interruttore">Max <input type="number" class="numero" id="maxCosto" min="1" max="99" placeholder="—"> FM</label>
+          <label class="interruttore" id="wrapNovita" hidden><input type="checkbox" id="soloNovita"> Solo novità</label>
+        </div>
+      </div>
+
+      <div class="lista" id="lista"></div>
+    </section>
+
+    <details class="blocco" id="bloccoAggiorna">
+      <summary>Aggiorna il listone</summary>
+      <div class="aggiorna-corpo">
+        <p>Quando la Gazzetta pubblica nuove quotazioni, carica qui il file aggiornato: l'app confronta riga per riga e segna i nuovi arrivi, le quotazioni cambiate e chi è uscito.</p>
+        <div class="dropzona" id="dropzona">
+          <input type="file" id="fileListone" accept=".csv,.txt,text/csv" style="display:none">
+          <button class="bottone primario" id="btnScegliFile">Scegli il file CSV</button>
+          <p class="nota" style="padding:8px 0 0;margin:0">oppure trascinalo qui. Colonne attese: Ruolo, Nome, Squadra, Costo.</p>
+        </div>
+        <div class="riga-filtri">
+          <button class="bottone" id="btnIncolla">Incolla il testo</button>
+          <button class="bottone" id="btnRipristina">Torna al listone di partenza</button>
+        </div>
+        <div id="riepilogoDiff"></div>
+      </div>
+    </details>
+
+    <details class="blocco">
+      <summary>Il regolamento in breve</summary>
+      <div class="regole-corpo">
+        <div>
+          <h3>Allestimento</h3>
+          <ul>
+            <li>Budget <b>600 FM</b>, rosa da <b>25</b>: 3 P, 8 D, 8 C, 6 A.</li>
+            <li>Consegna entro <b>sabato 22.08.2026, 17:30</b>.</li>
+            <li>Quotazioni ufficiali Gazzetta; voti e calendario Gazzetta fanno testo.</li>
+            <li>La rimanenza si riusa nei cambi.</li>
+            <li>Massimo 6 squadre iscritte per fantallenatore.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Formazione e moduli</h3>
+          <ul>
+            <li>Il modulo lo assegna il sistema: sceglie quello che dà il punteggio migliore.</li>
+            <li>Moduli: 3-5-2, 4-3-3, 4-5-1, 4-4-2, 5-4-1, 5-3-2, 3-4-3.</li>
+            <li>Ogni giornata contano il miglior portiere e i migliori giocatori di reparto.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Bonus e malus</h3>
+          <table>
+            <tr><td>Gol attaccante</td><td class="pos">+3</td><td>Gol centrocampista</td><td class="pos">+4</td></tr>
+            <tr><td>Gol difensore</td><td class="pos">+5</td><td>Gol portiere</td><td class="pos">+6</td></tr>
+            <tr><td>Rigore parato</td><td class="pos">+3</td><td>Rete inviolata</td><td class="pos">+2</td></tr>
+            <tr><td>Assist</td><td class="pos">+1</td><td>Ammonizione</td><td class="neg">−0.5</td></tr>
+            <tr><td>Espulsione</td><td class="neg">−1</td><td>Gol subito</td><td class="neg">−1</td></tr>
+            <tr><td>Autogol portiere</td><td class="neg">−1</td><td>Autogol</td><td class="neg">−2</td></tr>
+            <tr><td>Rigore fallito</td><td class="neg">−3</td><td></td><td></td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Bonus difesa</h3>
+          <ul>
+            <li>Modulo con almeno 4 difensori; devono andare a voto 4 difensori e 1 portiere.</li>
+            <li>Media dei voti puri di miglior portiere e 3 migliori difensori.</li>
+          </ul>
+          <table>
+            <tr><td>media = 6</td><td class="pos">+1</td></tr>
+            <tr><td>6 &lt; media ≤ 6.25</td><td class="pos">+2</td></tr>
+            <tr><td>6.25 &lt; media ≤ 6.5</td><td class="pos">+3</td></tr>
+            <tr><td>6.5 &lt; media ≤ 6.75</td><td class="pos">+4</td></tr>
+            <tr><td>6.75 &lt; media ≤ 7</td><td class="pos">+5</td></tr>
+            <tr><td>media &gt; 7</td><td class="pos">+6</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Cambi</h3>
+          <ul>
+            <li><b>15 cambi</b> a stagione, più 1 per ogni giornata vinta.</li>
+            <li>Giocatore in max 5 squadre: cambio libero.</li>
+            <li>In 6–25 squadre: 1 cambio. Oltre 25: bloccato all'andata, 2 cambi al ritorno.</li>
+            <li>Andata: fino a 4 cambi a giornata. Ritorno: 3–6 secondo la classifica.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Competizioni</h3>
+          <ul>
+            <li>Classifica generale, Coppa Garga (dall'11ª giornata, schieramento automatico).</li>
+            <li>Campionato di Apertura e di Clausura con premi propri.</li>
+            <li>Una squadra incassa un solo premio tra generale, apertura e clausura.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </div>
+</main>
+
+<div class="barra-mobile">
+  <div class="cifra" id="rimanenzaMobile">600</div>
+  <div class="conta" id="contaMobile"></div>
+  <button class="bottone primario" id="btnVaiRosa">Vedi rosa</button>
+</div>
+
+<script>
+/* ===== listone di partenza (Gazzetta) ===== */
+const VERSIONE_BASE = 'Listone Gazzetta 22.07.2026';
+const SQUADRE_BASE = ["Atalanta", "Bologna", "Cagliari", "Como", "Fiorentina", "Frosinone", "Genoa", "Internazionale", "Juventus", "Lazio", "Lecce", "Milan", "Monza", "Napoli", "Parma", "Roma", "Sassuolo", "Torino", "Udinese", "Venezia"];
+const DATI_BASE = {"P":[["SVILAR",15,38],["CARNESECCHI",0,34],["MAIGNAN",11,34],["BUTEZ",3,32],["MARTINEZ",7,29],["MILINKOVIC SAVIC",13,29],["DI GREGORIO",8,26],["MANDAS",9,25],["SKORUPSKI",1,25],["DE GEA",4,24],["BIJLOW",6,20],["CAPRILE",2,20],["PALEARI",17,18],["FALCONE",10,17],["OKOYE",18,17],["MURIC",16,16],["MERET",13,15],["STANKOVIC",19,13],["PALMISANI",5,12],["SUZUKI",14,12],["THIAM",12,11],["AUDERO",3,1],["CHRISTENSEN",4,1],["CIOCCI",2,1],["CONTINI",13,1],["CORVI",14,1],["DAFFARA",14,1],["DESPLANCHES",5,1],["DI GENNARO",7,1],["FERRANTE",13,1],["FRUCHTL",10,1],["FURLANETTO",9,1],["GOLLINI",15,1],["GRANDI",19,1],["HAPPONEN",1,1],["ISRAEL",17,1],["LEZZERINI",4,1],["LOLIC",5,1],["LYSIONOK",6,1],["MASCARDI",17,1],["MOTTA",9,1],["PADELLI",18,1],["PARDEL",0,1],["PERIN",8,1],["PESSINA",1,1],["PIANA",18,1],["PINSOGLIO",8,1],["PITTARELLA",11,1],["PIZZIGNACCO",12,1],["POZZI",19,1],["PROVEDEL",7,1],["RAVAGLIA",1,1],["RINALDI",14,1],["ROSSI",0,1],["SAMOOJA",10,1],["SHERRI",2,1],["SIVIERO",17,1],["SOMMARIVA",6,1],["SPORTIELLO",0,1],["STRAJNAR",12,1],["TERRACCIANO",11,1],["TORNQVIST",3,1],["TORRIANI",11,1],["TURATI",16,1],["VASQUEZ",15,1],["ZACCHI",16,1],["ZELEZNY",15,1]],"D":[["DIMARCO",7,43],["WESLEY",15,36],["BASTONI",7,35],["BREMER",8,34],["MANCINI",15,33],["PAVLOVIC",11,33],["AKANJI",7,32],["DI LORENZO",13,32],["ZAPPACOSTA",0,32],["KALULU",8,31],["NDICKA",15,30],["SOLET",18,30],["CAMBIASO",8,29],["BISSECK",7,28],["DODO",4,28],["KEMPF",3,27],["SPINAZZOLA",13,27],["RAMON",3,26],["SCALVINI",0,26],["VALLE",3,26],["GOSENS",4,25],["HERMOSO",15,25],["HIEN",0,25],["RRAHMANI",13,25],["BELLANOVA",0,24],["CARLOS AUGUSTO",7,24],["KELLY",8,24],["MIRANDA",1,23],["OSTIGARD",6,23],["PEDERSEN",17,23],["GILA",11,22],["BUONGIORNO",13,21],["GABBIA",11,21],["HOLM",1,21],["JIMENEZ",4,21],["LUCUMI",1,21],["VASQUEZ",6,21],["BARTESAGHI",11,20],["DJIMSITI",0,20],["DRAGUSIN",4,20],["GALLO",10,20],["MARUSIC",9,20],["MINA",2,20],["PARISI",4,20],["PAVARD",7,20],["TOMORI",11,20],["VALERI",14,20],["BERNASCONI",0,19],["CELIK",8,19],["COMUZZO",4,19],["DEL PRATO",14,19],["GATTI",8,19],["GUTIERREZ",13,19],["KRISTENSEN",18,19],["MUHAREMOVIC",16,19],["NORTON-CUFFY",6,19],["RANIERI",4,19],["DOEKHI",9,18],["GABRIEL",10,18],["ISMAJLI",17,18],["MARTIN",6,18],["RENSCH",15,18],["SMOLCIC",3,18],["ZORTEA",1,18],["BEUKEMA",13,17],["OLIVERA",13,17],["PEDRAZA",9,17],["PONGRACIC",4,17],["COCO",17,16],["GHILARDI",15,16],["KABASELE",18,16],["NUNO TAVARES",9,16],["VOJVODA",18,16],["ZAPPA",2,16],["ATHEKAME",11,15],["CABAL",8,15],["KOSSOUNOU",0,15],["MARCANDALLI",6,15],["OBERT",2,15],["PROVSTGAARD",9,15],["VEIGA",10,15],["WALUKIEWICZ",16,15],["AHANOR",0,14],["CUENCA",3,14],["DE WINTER",11,14],["KAIKI",3,14],["KAMARA",18,14],["MARIO",8,14],["SABELLI",6,14],["VAN DER BREMPT",3,14],["VIERY",4,14],["ZEMURA",18,14],["ZÉ PEDRO",2,14],["CIRCATI",14,13],["TROILO",14,13],["VITIK",1,13],["BERTOLA",18,12],["BIRINDELLI",12,12],["CALVANI",5,12],["CORREIA",19,12],["HAPS",19,12],["HEGGEM",1,12],["KOLASINAC",0,12],["LAZZARI",9,12],["MARIN",13,12],["OYONO",5,12],["RODRIGUEZ",2,12],["DELLI CARRI",12,11],["MONTERISI",5,11],["PATRIC",9,11],["BELLA-KOTCHAP",19,10],["CARBONI",12,10],["CORRADO",5,10],["DOIG",16,10],["FORTINI",4,10],["IDRISSI",2,10],["MARIANUCCI",13,10],["PELLEGRINI",9,10],["RAVANELLI",12,10],["SIEBERT",10,10],["ALHASSANE",1,9],["GOGLICHIDZE",18,9],["SCHINGTIENNE",19,9],["SVERKO",19,9],["TERRACCIANO",11,9],["VALENTI",14,9],["ANGELINO",15,8],["BIRAGHI",17,8],["BRITSCHGI",14,8],["CANDÈ",16,8],["DOSSENA",3,8],["EBOSSE",18,8],["ESTUPINAN",11,8],["FRANJIC",19,8],["GASPAR",10,8],["GOLDANIGA",3,8],["KUMBULLA",15,8],["MUSSOLINI",9,8],["OYONO",5,8],["PUCZKA",6,8],["SAGRADO",19,8],["ZANOLI",18,8],["ZIOLKOWSKI",15,8],["BRACAGLIA",5,7],["GELLI",5,7],["HELLAND",1,7],["NDIAYE",14,7],["BAKKER",0,6],["CARBONI",14,6],["CASALE",1,6],["CITTADINI",5,6],["IDZES",16,6],["JEAN",10,6],["LUCCHESI",12,6],["MAZZOCCHI",13,6],["OTOA",6,6],["PIERAGNOLO",16,6],["AMEY",5,5],["ARIZALA",18,5],["BRORSSON",12,5],["DE SILVESTRI",1,5],["EL AZZOUZI",5,5],["GOMES",19,5],["KOUADIO",12,5],["KOUASSI",10,5],["LAMPTEY",4,5],["BALBO",4,4],["GIGOT",9,4],["NDABA",10,4],["ODENTHAL",16,4],["PALMA",18,4],["RUGANI",8,4],["ANTOV",12,3],["MLACIC",18,3],["OBLEAC",5,2],["ABANKWAH",18,1],["BAKOUNE",12,1],["CAPOLUPO",12,1],["COCCHI",7,1],["COMI",0,1],["DE PAOLI",3,1],["GALASSI",9,1],["KOSPO",4,1],["KUMER CELIK",6,1],["LIGUE",19,1],["MANNINI",15,1],["MARKOVIC",1,1],["OBARETIN",13,1],["ODOGU",11,1],["PEREZ",10,1],["SANGARÉ",15,1],["SIDIBÉ",19,1],["VENTURI",19,1]],"C":[["CALHANOGLU",7,60],["MCTOMINAY",13,60],["PAZ",3,59],["PULISIC",11,57],["ORSOLINI",1,53],["VLASIC",17,52],["ZANIOLO",18,48],["PELLEGRINI",15,46],["RABIOT",11,46],["SANTOS",13,46],["DA CUNHA",3,45],["BATURINA",3,44],["DE BRUYNE",13,44],["MODRIC",11,43],["MCKENNIE",8,42],["CONCEICAO",8,41],["ZACCAGNI",9,41],["BARELLA",7,40],["BERNARDESCHI",1,40],["GUDMUNDSSON",4,40],["KONE",15,40],["ATTA",4,39],["ZIELINSKI",7,39],["EDERSON",0,38],["POLITANO",13,38],["SAELEMAEKERS",11,38],["THORSTVEDT",16,38],["CAQUERET",3,35],["PERRONE",3,35],["THURAM",8,35],["TAYLOR",9,34],["ANGUISSA",13,33],["FAGIOLI",4,33],["LOCATELLI",8,33],["MKHITARYAN",7,33],["CRISTANTE",15,32],["KONE",16,32],["LOFTUS-CHEEK",11,32],["MANDRAGORA",4,30],["BERNABÈ",14,29],["FOFANA",11,29],["PASALIC",0,29],["CASADEI",17,28],["CHUKWUEZE",11,28],["EKKELENKAMP",18,28],["PISILLI",15,28],["SUCIC",7,28],["DE ROON",0,27],["SAMARDZIC",0,27],["LOBOTKA",13,26],["KOOPMEINERS",8,25],["LUIS HENRIQUE",7,25],["MESSIAS",6,25],["ODGAARD",1,25],["PIEROTTI",10,25],["VOLPATO",16,25],["EL AYNAOUI",15,24],["MATIC",16,24],["RICCI",11,24],["ZALEWSKI",0,24],["GINEITIS",17,23],["KARLSTROM",18,23],["BERISHA",10,22],["CALÒ",5,22],["CATALDI",9,22],["FOLORUNSHO",13,22],["LUIZ",8,22],["VERGARA",13,22],["BRESCIANINI",4,21],["FABBIAN",4,21],["FRATTESI",7,21],["ZHEGROVA",8,21],["BALDANZI",6,20],["FADERA",3,20],["FERGUSON",1,20],["FRENDRUP",6,20],["GANDELMAN",10,20],["KEITA",14,20],["MALDINI",0,20],["MILLA",3,20],["OULAI",4,20],["PESSINA",12,20],["PIOTROWSKI",18,20],["POBEGA",1,20],["GAETANO",0,19],["MIRETTI",8,19],["MORO",1,19],["ADOPO",2,18],["BASIC",19,18],["DIOUF",7,18],["FAZZINI",2,18],["LIBERALI",3,18],["PRATI",17,18],["STANKOVIC",7,18],["DELE-BASHIRU",9,17],["ELLERTSSON",6,17],["GOMEZ",18,17],["ILKHAN",17,17],["NDOUR",4,17],["NICOLUSSI CAVIGLIA",14,17],["PEREZ",19,17],["SOHM",4,17],["SORENSEN",14,17],["COLPANI",12,16],["COULIBALY",10,16],["KOUTSOUPIAS",5,16],["LIPANI",16,16],["MASINI",6,16],["ORISTANIO",17,16],["VENTURINO",6,16],["BUSIO",19,15],["CICHELLA",5,15],["HAINAUT",19,15],["IANNONI",16,15],["JASHARI",11,15],["LINDSTROM",13,15],["PAYERO",18,15],["ROVELLA",9,15],["TRAORÈ",6,15],["BELAHYANE",9,14],["ILIC",17,14],["MAZZITELLI",3,14],["MILLER",18,14],["ORDONEZ",14,14],["SOTTIL",4,14],["ASLLANI",7,13],["CHAKVETADZE",18,13],["MUSAH",11,13],["SULEMANA",2,13],["WINKS",2,13],["ZARRAGA",18,13],["BONDO",11,12],["DEIOLA",2,12],["MEICHTRY",6,12],["AMORIM",6,11],["ANJORIN",17,11],["CIURRIA",12,11],["COLOMBO",12,11],["ZERBIN",13,11],["ADZIC",8,10],["BENNACER",11,10],["CREMASCHI",14,10],["DUNCAN",19,10],["GELLI",5,10],["HELGASON",19,10],["LOVRIC",18,10],["SALA",10,10],["BAKOLA",16,9],["COMPAGNON",19,9],["GILMOUR",13,9],["KONE",5,9],["MALEH",10,9],["CAJUSTE",13,8],["NGOM",10,8],["PAFUNDI",18,8],["AKINSANMIRO",7,7],["BOLOCA",16,7],["PRZYBOREK",9,7],["BOHINEN",19,6],["DAGASSO",19,6],["FOE-ONDOA",12,6],["GROSSO",5,6],["KABA",10,6],["BJARKASON",19,5],["CARBONI",7,5],["GALAZZI",12,5],["HASA",13,5],["LAFONT",6,5],["AKARAKIRI",2,4],["FOFANA",10,4],["LELLA",19,4],["LITETA",2,4],["MASSOLIN",7,4],["WIAFE",6,4],["ZEROLI",11,3],["CISSÈ",11,2],["FARJI",19,2],["LAHDO",3,2],["MARCHWINSKI",10,2],["BALLABIO",12,1],["BERARDI",19,1],["BERENBRUCH",7,1],["CAMARA",18,1],["CARBONE",6,1],["GORTER",10,1],["KAMATE",7,1],["KOUDA",14,1],["KOVAC",10,1],["SACO",13,1],["TERRNAVA",14,1],["TOCI",5,1],["TOPALOVIC",7,1]],"A":[["MARTINEZ",7,88],["MALEN",15,84],["HOJLUND",13,78],["RAMOS",11,78],["THURAM",7,74],["YILDIZ",8,70],["DOUVIKAS",3,65],["LEAO",11,65],["KEAN",4,64],["DAVIS",18,61],["SCAMACCA",0,60],["CASTRO",1,57],["SIMEONE",17,57],["KRSTOVIC",0,56],["SOULÉ",15,56],["PINAMONTI",16,54],["ADAMS",17,50],["DAVID",8,50],["DYBALA",15,50],["NKUNKU",11,49],["BERARDI",16,48],["PELLEGRINO",14,48],["LAURIENTÉ",16,46],["ZAPATA",17,43],["NERES",13,42],["RASPADORI",0,42],["DE KETELAERE",0,40],["ESPOSITO",2,40],["ESPOSITO",7,40],["RODRIGUEZ",3,40],["ROWE",1,40],["BOGA",8,36],["COLOMBO",6,36],["LANG",13,35],["LUKAKU",13,35],["BANDA",10,32],["BONNY",7,32],["VÍTINHA",6,31],["DIAO",3,30],["STULIC",10,29],["CAMBIAGHI",1,28],["LUCCA",13,28],["ISAKSEN",9,26],["PICCOLI",4,26],["GHEDJEMIS",5,25],["GIOVANE",13,25],["ADORANTE",19,24],["BORRELLI",2,24],["CUTRONE",12,24],["DALLINGA",1,24],["YEBOAH",19,24],["BELOTTI",2,23],["NOSLIN",9,23],["OPENDA",8,23],["RAIMONDO",5,23],["SULEMANA",0,23],["ELPHEGE",14,22],["GIMENEZ",11,22],["DIA",9,21],["HAVEL",6,21],["ADDAI",3,20],["BUKSA",18,20],["DOVBYK",15,20],["EKHATOR",8,20],["KUHN",3,20],["NJIE",17,20],["NZOLA",4,20],["PETAGNA",12,20],["RATKOV",9,20],["VAZ",15,20],["CANCELLIERI",9,19],["CHEDDIRA",13,19],["MOTA",12,19],["ABOUKHLAL",17,18],["DOMINGUEZ",1,18],["KVERNADZE",5,18],["MORATA",3,18],["NGONGE",13,18],["ONDREJKA",14,18],["KULENOVIC",17,17],["N’DRI",10,17],["ALMQVIST",14,15],["BAYO",18,15],["BRAVO",18,15],["GUEYE",18,15],["TOURÉ",0,13],["ÁLVAREZ",16,13],["BALDÉ",12,12],["CASAS",19,12],["CAMARDA",11,10],["FINI",5,10],["FRIGAN",14,10],["LISMAN",19,10],["MILIK",8,10],["MORO",16,10],["RRAHMANI",19,10],["FELICI",2,9],["FILA",19,9],["KARLSSON",1,9],["EL AZZOUZI",1,8],["OKORO",19,7],["LAUBERBACH",19,6],["ALBARRACIN",2,5],["MENDY",2,5],["MODESTO",18,5],["TREPY",2,4],["ARENA",15,3],["FORSON",12,3],["LOUBAO",12,3],["MARTINS",12,3],["BARCELLA",5,2],["BURNETE",10,2],["CICHERO",5,2],["AMBROSINO",13,1],["BALENTIEN",11,1],["BRASCHI",4,1],["COLLEY",5,1],["GORI",5,1],["JOVIC",10,1],["LAVELLI",7,1],["MOSCONI",7,1],["RAO",13,1],["SPINACCÈ",7,1],["VIGLIOTTI",13,1],["VINCIATI",18,1]]};
+
+const RUOLI = ['P','D','C','A'];
+const NOME_RUOLO = {P:'Portieri', D:'Difensori', C:'Centrocampisti', A:'Attaccanti'};
+const SIGLA = {P:'POR', D:'DIF', C:'CEN', A:'ATT'};
+const QUOTA = {P:3, D:8, C:8, A:6};
+const COLORE = {P:'var(--p)', D:'var(--d)', C:'var(--c)', A:'var(--a)'};
+const BUDGET = 600, MAX_VERSIONI = 12;
+const el = id => document.getElementById(id);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ===== stato ===== */
+let listone = {versione:VERSIONE_BASE, giocatori:[], diff:null, importato:false};
+let PER_ID = new Map();
+let rosa = {P:[], D:[], C:[], A:[]};
+let versioni = [];
+let filtri = {ruolo:'T', testo:'', squadra:'', ordine:'costo-desc', soloBudget:false, nascondiPresi:true, maxCosto:null, soloNovita:false};
+
+function chiave(ruolo, nome, squadra, occ){ return ruolo + '|' + nome + '|' + squadra + (occ > 1 ? '|' + occ : ''); }
+
+function costruisci(dati, squadre){
+  const conta = new Map(), out = [];
+  RUOLI.forEach(r => (dati[r] || []).forEach(g => {
+    const nome = g[0], sq = (typeof g[1] === 'number') ? squadre[g[1]] : g[1], costo = g[2];
+    const base = r + '|' + nome + '|' + sq;
+    const occ = (conta.get(base) || 0) + 1; conta.set(base, occ);
+    out.push({id:chiave(r, nome, sq, occ), ruolo:r, nome:nome, squadra:sq, costo:costo, stato:null, costoPrec:null});
+  }));
+  return out;
+}
+function indicizza(){ PER_ID = new Map(listone.giocatori.map(g => [g.id, g])); }
+function squadreAttive(){ return Array.from(new Set(listone.giocatori.map(g => g.squadra))).sort(); }
+
+/* ===== persistenza ===== */
+const MEMORIA = {};
+const deposito = (function(){
+  try{
+    if(typeof window.storage !== 'undefined' && window.storage && window.storage.get){
+      return {tipo:'app', dove:'in questa conversazione',
+        get: async k => { try{ const r = await window.storage.get(k); return r && r.value ? r.value : null; }catch(e){ return null; } },
+        set: async (k,v) => { try{ await window.storage.set(k, v); }catch(e){} },
+        del: async k => { try{ await window.storage.delete(k); }catch(e){} }};
+    }
+  }catch(e){}
+  try{
+    const t = 'garga:prova'; window.localStorage.setItem(t,'1'); window.localStorage.removeItem(t);
+    return {tipo:'locale', dove:'su questo dispositivo, in questo browser',
+      get: async k => window.localStorage.getItem(k),
+      set: async (k,v) => { try{ window.localStorage.setItem(k, v); }catch(e){ alert('Spazio esaurito: non riesco a salvare.'); } },
+      del: async k => window.localStorage.removeItem(k)};
+  }catch(e){}
+  return {tipo:'volatile', dove:'solo finché la pagina resta aperta',
+    get: async k => MEMORIA[k] || null, set: async (k,v) => { MEMORIA[k] = v; }, del: async k => { delete MEMORIA[k]; }};
+})();
+async function leggi(k){ const v = await deposito.get(k); try{ return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+async function scrivi(k, v){ return v === null ? deposito.del(k) : deposito.set(k, JSON.stringify(v)); }
+const salvaRosa = () => scrivi('garga:rosa', rosa);
+const salvaVersioni = () => scrivi('garga:versioni', versioni);
+const salvaListone = () => scrivi('garga:listone', listone.importato ? {
+  versione:listone.versione,
+  righe:listone.giocatori.map(g => [g.ruolo, g.nome, g.squadra, g.costo, g.stato, g.costoPrec]),
+  diff:listone.diff
+} : null);
+
+function migra(lista){
+  /* vecchi id indicizzati (P#0) → chiavi stabili */
+  const perRuolo = {}; RUOLI.forEach(r => perRuolo[r] = listone.giocatori.filter(g => g.ruolo === r));
+  return (lista || []).map(id => {
+    if(PER_ID.has(id)) return id;
+    const m = /^([PDCA])#(\d+)$/.exec(id);
+    if(m && perRuolo[m[1]][+m[2]]) return perRuolo[m[1]][+m[2]].id;
+    return null;
+  }).filter(Boolean);
+}
+
+/* ===== calcoli ===== */
+const spese = () => { const o = {}; RUOLI.forEach(r => o[r] = rosa[r].reduce((s,id) => s + (PER_ID.get(id) ? PER_ID.get(id).costo : 0), 0)); return o; };
+const totale = () => { const s = spese(); return RUOLI.reduce((a,r) => a + s[r], 0); };
+const nGiocatori = () => RUOLI.reduce((a,r) => a + rosa[r].length, 0);
+const rimanenza = () => BUDGET - totale();
+const inRosa = id => { const g = PER_ID.get(id); return !!g && rosa[g.ruolo].indexOf(id) !== -1; };
+
+function motivoBlocco(g){
+  if(rosa[g.ruolo].length >= QUOTA[g.ruolo]) return 'Reparto già completo';
+  if(g.costo > rimanenza()) return 'Ti restano ' + rimanenza() + ' FM: non bastano';
+  const liberi = RUOLI.reduce((a,r) => a + (QUOTA[r] - rosa[r].length), 0) - 1;
+  if(rimanenza() - g.costo < liberi) return 'Lascerebbe meno di 1 FM per ognuno dei ' + liberi + ' posti liberi';
+  return null;
+}
+
+/* ===== render ===== */
+function rendiTabellone(){
+  const sp = spese(), tot = totale(), rim = rimanenza(), n = nGiocatori();
+  el('rimanenza').textContent = rim;
+  el('rimanenza').classList.toggle('rosso', rim < 0);
+  el('spesa').textContent = tot;
+  el('metaRosa').textContent = n + '/25 giocatori';
+  el('rimanenzaMobile').textContent = rim;
+  el('contaMobile').innerHTML = n + '/25 giocatori<br>FM liberi';
+
+  const segs = el('barra').children, base = Math.max(BUDGET, tot);
+  RUOLI.forEach((r,i) => segs[i].style.width = (sp[r] / base * 100) + '%');
+  segs[4].style.width = (Math.max(0, tot - BUDGET) / base * 100) + '%';
+  el('legenda').innerHTML = RUOLI.map(r => '<span><i style="background:' + COLORE[r] + '"></i>' + SIGLA[r] + ' ' + sp[r] + '</span>').join('');
+
+  const problemi = [];
+  RUOLI.forEach(r => { const m = QUOTA[r] - rosa[r].length; if(m > 0) problemi.push('Mancano ' + m + ' ' + NOME_RUOLO[r].toLowerCase()); });
+  if(rim < 0) problemi.push('Sforati di ' + (-rim) + ' FM');
+  const e = el('esito');
+  e.className = 'esito' + (problemi.length ? (rim < 0 ? ' errore' : '') : ' valida');
+  e.innerHTML = problemi.length
+    ? '<strong>' + (rim < 0 ? 'Fuori budget' : 'Rosa incompleta') + '</strong><ul><li>' + problemi.join('</li><li>') + '</li></ul>'
+    : '<strong>Rosa valida</strong><br>25 giocatori, ' + tot + ' FM spesi. Ti restano <b>' + rim + ' FM</b> per i cambi.';
+}
+
+function rendiReparti(){
+  const sp = spese();
+  el('reparti').innerHTML = RUOLI.map(r => {
+    const scelti = rosa[r].map(id => PER_ID.get(id)).filter(Boolean).sort((a,b) => b.costo - a.costo);
+    const righe = scelti.map(g =>
+      '<div class="slot entra"><span class="nome">' + esc(g.nome) + '</span> <span class="club">' + esc(g.squadra) + '</span>' +
+      (g.stato === 'variato' ? '<span class="tag t-variato">' + (g.costo > g.costoPrec ? '+' : '') + (g.costo - g.costoPrec) + '</span>' : '') +
+      '<span class="costo">' + g.costo + '</span>' +
+      '<button class="togli" data-togli="' + g.id + '" aria-label="Togli ' + esc(g.nome) + '">×</button></div>');
+    for(let i = scelti.length; i < QUOTA[r]; i++) righe.push('<div class="slot vuoto">posto libero</div>');
+    return '<div class="reparto"><div class="reparto-testa"><span class="pallino" style="background:' + COLORE[r] + '"></span>' +
+      '<span class="reparto-nome">' + NOME_RUOLO[r] + '</span><span class="reparto-spesa">' + sp[r] + ' FM</span>' +
+      '<span class="reparto-conta' + (scelti.length === QUOTA[r] ? ' pieno' : '') + '">' + scelti.length + '/' + QUOTA[r] + '</span></div>' +
+      righe.join('') + '</div>';
+  }).join('');
+}
+
+function listaFiltrata(){
+  let out = listone.giocatori.slice();
+  if(filtri.ruolo !== 'T') out = out.filter(g => g.ruolo === filtri.ruolo);
+  if(filtri.squadra) out = out.filter(g => g.squadra === filtri.squadra);
+  if(filtri.testo){ const t = filtri.testo.toUpperCase(); out = out.filter(g => g.nome.toUpperCase().indexOf(t) !== -1); }
+  if(filtri.maxCosto) out = out.filter(g => g.costo <= filtri.maxCosto);
+  if(filtri.soloNovita) out = out.filter(g => g.stato === 'nuovo' || g.stato === 'variato');
+  if(filtri.soloBudget){ const rim = rimanenza(); out = out.filter(g => g.costo <= rim || inRosa(g.id)); }
+  if(filtri.nascondiPresi) out = out.filter(g => !inRosa(g.id));
+  const ord = {
+    'costo-desc': (a,b) => b.costo - a.costo || a.nome.localeCompare(b.nome),
+    'costo-asc':  (a,b) => a.costo - b.costo || a.nome.localeCompare(b.nome),
+    'nome':       (a,b) => a.nome.localeCompare(b.nome),
+    'squadra':    (a,b) => a.squadra.localeCompare(b.squadra) || b.costo - a.costo,
+    'variazione': (a,b) => Math.abs((b.costoPrec == null ? b.costo : b.costo - b.costoPrec)) - Math.abs((a.costoPrec == null ? a.costo : a.costo - a.costoPrec))
+  };
+  if(filtri.ordine === 'variazione'){
+    const delta = g => g.stato === 'nuovo' ? 1e6 : (g.costoPrec == null ? -1 : Math.abs(g.costo - g.costoPrec));
+    return out.sort((a,b) => delta(b) - delta(a) || b.costo - a.costo);
+  }
+  return out.sort(ord[filtri.ordine]);
+}
+
+function rendiLista(){
+  const arr = listaFiltrata();
+  const nuovi = listone.giocatori.filter(g => g.stato === 'nuovo').length;
+  const var_ = listone.giocatori.filter(g => g.stato === 'variato').length;
+  el('metaListone').innerHTML = esc(listone.versione) + '<br>' + arr.length + ' di ' + listone.giocatori.length +
+    (nuovi + var_ ? ' · ' + nuovi + ' nuovi, ' + var_ + ' variati' : '');
+  el('wrapNovita').hidden = !(nuovi + var_);
+
+  if(!arr.length){ el('lista').innerHTML = '<div class="vuoto-lista"><b>Nessun risultato</b>Allarga i filtri o azzera la ricerca.</div>'; return; }
+  const pezzi = arr.slice(0, 400).map(g => {
+    const presa = inRosa(g.id), motivo = presa ? null : motivoBlocco(g);
+    const tag = g.stato === 'nuovo' ? '<span class="tag t-nuovo">nuovo</span>'
+      : (g.stato === 'variato' ? '<span class="tag t-variato">' + (g.costo > g.costoPrec ? '▲' : '▼') + ' ' + (g.costo > g.costoPrec ? '+' : '') + (g.costo - g.costoPrec) + '</span>' : '');
+    return '<div class="voce' + (presa ? ' presa' : (motivo ? ' bloccata' : '')) + (g.stato ? ' ' + g.stato : '') + '">' +
+      '<span class="ruolo" style="background:' + COLORE[g.ruolo] + '">' + g.ruolo + '</span>' +
+      '<span><span class="giocatore">' + esc(g.nome) + '</span>' + tag + '<span class="squadra solo-mobile">' + esc(g.squadra) + '</span></span>' +
+      '<span class="squadra nascosto-mobile">' + esc(g.squadra) + '</span>' +
+      '<span class="prezzo">' + (g.stato === 'variato' ? '<span class="vecchio">' + g.costoPrec + '</span>' : '') + g.costo + '</span>' +
+      '<button class="agg" data-agg="' + g.id + '"' + (presa || motivo ? ' disabled' : '') + ' title="' + esc(motivo || 'Aggiungi alla rosa') + '">' + (presa ? '✓' : '+') + '</button>' +
+      (motivo ? '<span class="motivo">' + esc(motivo) + '</span>' : '') + '</div>';
+  });
+  if(arr.length > 400) pezzi.push('<div class="vuoto-lista">Mostrati i primi 400. Restringi la ricerca per vedere gli altri.</div>');
+  el('lista').innerHTML = pezzi.join('');
+}
+
+function rendiVersioni(){
+  el('metaVersioni').textContent = versioni.length + '/' + MAX_VERSIONI;
+  if(!versioni.length){ el('listaVersioni').innerHTML = '<p class="nota" style="padding:10px 0 0">Nessuna versione salvata. Componi la rosa e premi “Salva versione”.</p>'; return; }
+  el('listaVersioni').innerHTML = versioni.map((v,i) =>
+    '<div class="versione"><span class="titolo">' + esc(v.nome) + '</span>' +
+    '<span class="dettaglio">' + v.n + '/25 · ' + v.tot + ' FM</span>' +
+    '<button class="mini" data-carica="' + i + '">Apri</button>' +
+    '<button class="mini" data-elimina="' + i + '">×</button></div>').join('');
+}
+
+const rendiTutto = () => { rendiTabellone(); rendiReparti(); rendiLista(); rendiVersioni(); };
+
+/* ===== azioni rosa ===== */
+function aggiungi(id){
+  const g = PER_ID.get(id);
+  if(!g || inRosa(id) || motivoBlocco(g)) return;
+  rosa[g.ruolo].push(id); salvaRosa(); rendiTutto();
+}
+function togli(id){
+  const g = PER_ID.get(id); if(!g) return;
+  rosa[g.ruolo] = rosa[g.ruolo].filter(x => x !== id); salvaRosa(); rendiTutto();
+}
+function testoRosa(r){
+  const righe = ['FANTAGARGAMELLA 2026/27 — ROSA', listone.versione, ''];
+  let tot = 0;
+  RUOLI.forEach(ru => {
+    righe.push(NOME_RUOLO[ru].toUpperCase() + ' (' + r[ru].length + '/' + QUOTA[ru] + ')');
+    r[ru].map(id => PER_ID.get(id)).filter(Boolean).sort((a,b) => b.costo - a.costo)
+      .forEach(g => { tot += g.costo; righe.push('  ' + String(g.costo).padStart(3,' ') + '  ' + g.nome + ' (' + g.squadra + ')'); });
+    righe.push('');
+  });
+  righe.push('Totale speso: ' + tot + ' FM su ' + BUDGET, 'Rimanenza per i cambi: ' + (BUDGET - tot) + ' FM');
+  return righe.join('\n');
+}
+
+/* ===== modale ===== */
+function apriModale(titolo, contenuto, meta){
+  const velo = document.createElement('div');
+  velo.className = 'velo';
+  velo.innerHTML = '<div class="modale"><div class="pannello-testa"><h2>' + esc(titolo) + '</h2><span class="meta">' + (meta || '') + '</span></div><div class="modale-corpo"></div></div>';
+  velo.querySelector('.modale-corpo').innerHTML = contenuto;
+  velo.addEventListener('click', e => { if(e.target === velo) velo.remove(); });
+  document.addEventListener('keydown', function chiudi(e){ if(e.key === 'Escape'){ velo.remove(); document.removeEventListener('keydown', chiudi); } });
+  document.body.appendChild(velo);
+  return velo;
+}
+
+/* ===== import listone ===== */
+function parseCSV(testo){
+  const righe = testo.replace(/\r/g,'').split('\n').filter(r => r.trim());
+  if(!righe.length) throw new Error('File vuoto');
+  const sep = (righe[0].match(/;/g) || []).length > (righe[0].match(/,/g) || []).length ? ';' : ',';
+  const taglia = r => r.split(sep).map(c => c.trim().replace(/^"|"$/g,''));
+  const testa = taglia(righe[0]).map(c => c.toLowerCase());
+  const idx = n => testa.findIndex(c => c.indexOf(n) === 0);
+  const iR = idx('ruolo'), iN = idx('nome'), iS = idx('squadra'), iC = testa.findIndex(c => c.indexOf('costo') === 0 || c.indexOf('quot') === 0 || c.indexOf('prezzo') === 0);
+  if(iR < 0 || iN < 0 || iS < 0 || iC < 0) throw new Error('Servono le colonne Ruolo, Nome, Squadra, Costo. Trovate: ' + testa.join(', '));
+  const mappaR = {p:'P', por:'P', portiere:'P', d:'D', dif:'D', difensore:'D', c:'C', cen:'C', centrocampista:'C', a:'A', att:'A', attaccante:'A'};
+  const dati = {P:[], D:[], C:[], A:[]};
+  let scartate = 0;
+  righe.slice(1).forEach(r => {
+    const c = taglia(r);
+    const ru = mappaR[(c[iR] || '').toLowerCase()];
+    const costo = parseInt((c[iC] || '').replace(/[^0-9-]/g,''), 10);
+    if(!ru || !c[iN] || !c[iS] || isNaN(costo)){ scartate++; return; }
+    dati[ru].push([c[iN].trim().toUpperCase(), c[iS].trim(), costo]);
+  });
+  const n = RUOLI.reduce((a,r) => a + dati[r].length, 0);
+  if(!n) throw new Error('Nessuna riga valida trovata');
+  return {dati:dati, n:n, scartate:scartate};
+}
+
+function applicaListone(dati, etichetta){
+  const precedenti = new Map(listone.giocatori.map(g => [g.id, g.costo]));
+  const nuoviG = costruisci(dati, null);
+  let nuovi = 0, variati = 0;
+  nuoviG.forEach(g => {
+    if(!precedenti.has(g.id)){ g.stato = 'nuovo'; nuovi++; }
+    else if(precedenti.get(g.id) !== g.costo){ g.stato = 'variato'; g.costoPrec = precedenti.get(g.id); variati++; }
+  });
+  const presenti = new Set(nuoviG.map(g => g.id));
+  const usciti = listone.giocatori.filter(g => !presenti.has(g.id));
+  const uscitiInRosa = usciti.filter(g => inRosa(g.id));
+
+  listone = {versione:etichetta, giocatori:nuoviG, importato:true,
+    diff:{nuovi:nuovi, variati:variati, usciti:usciti.length, uscitiInRosa:uscitiInRosa.map(g => g.nome + ' (' + g.squadra + ')')}};
+  indicizza();
+  RUOLI.forEach(r => rosa[r] = rosa[r].filter(id => PER_ID.has(id)));
+  salvaRosa(); salvaListone();
+
+  const d = listone.diff;
+  el('riepilogoDiff').innerHTML = '<div class="riepilogo-diff"><strong>Listone aggiornato</strong><br>' +
+    nuoviG.length + ' giocatori · <b>' + nuovi + '</b> nuovi · <b>' + variati + '</b> quotazioni variate · <b>' + usciti.length + '</b> usciti' +
+    (uscitiInRosa.length ? '<br><span style="color:var(--ko)">Tolti dalla rosa perché non più in lista: ' + esc(d.uscitiInRosa.join(', ')) + '</span>' : '') +
+    '</div>';
+  aggiornaSelectSquadre();
+  filtri.soloNovita = false; el('soloNovita').checked = false;
+  rendiTutto();
+}
+
+function leggiFile(f){
+  const fr = new FileReader();
+  fr.onload = () => {
+    try{
+      const r = parseCSV(String(fr.result));
+      applicaListone(r.dati, 'Listone ' + f.name.replace(/\.[^.]+$/,'') + ' · ' + new Date().toLocaleDateString('it-IT'));
+    }catch(err){
+      el('riepilogoDiff').innerHTML = '<div class="riepilogo-diff" style="border-color:var(--ko)"><strong>Non riesco a leggere il file</strong><br>' + esc(err.message) + '</div>';
+    }
+  };
+  fr.readAsText(f, 'utf-8');
+}
+
+/* ===== eventi ===== */
+document.addEventListener('click', ev => {
+  const a = ev.target.closest('[data-agg]');     if(a && !a.disabled) return aggiungi(a.dataset.agg);
+  const t = ev.target.closest('[data-togli]');   if(t) return togli(t.dataset.togli);
+  const c = ev.target.closest('[data-carica]');  if(c) return caricaVersione(+c.dataset.carica);
+  const d = ev.target.closest('[data-elimina]'); if(d) return eliminaVersione(+d.dataset.elimina);
+  const chip = ev.target.closest('.chip');
+  if(chip){
+    filtri.ruolo = chip.dataset.ruolo;
+    document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x === chip ? 'true' : 'false'));
+    rendiLista();
+  }
+});
+el('cerca').addEventListener('input', e => { filtri.testo = e.target.value.trim(); rendiLista(); });
+el('squadra').addEventListener('change', e => { filtri.squadra = e.target.value; rendiLista(); });
+el('ordine').addEventListener('change', e => { filtri.ordine = e.target.value; rendiLista(); });
+el('soloBudget').addEventListener('change', e => { filtri.soloBudget = e.target.checked; rendiLista(); });
+el('nascondiPresi').addEventListener('change', e => { filtri.nascondiPresi = e.target.checked; rendiLista(); });
+el('soloNovita').addEventListener('change', e => { filtri.soloNovita = e.target.checked; rendiLista(); });
+el('maxCosto').addEventListener('input', e => { const v = parseInt(e.target.value,10); filtri.maxCosto = isNaN(v) ? null : v; rendiLista(); });
+
+el('btnSvuota').addEventListener('click', () => {
+  if(!nGiocatori()) return;
+  if(confirm('Svuoti la rosa in lavorazione? Le versioni salvate restano.')){ rosa = {P:[],D:[],C:[],A:[]}; salvaRosa(); rendiTutto(); }
+});
+
+el('btnEsporta').addEventListener('click', () => {
+  const testo = testoRosa(rosa);
+  const v = apriModale('Rosa da copiare', '<textarea class="export" readonly></textarea><div class="azioni" style="padding:10px 0 0"><button class="bottone primario" id="copiaOra">Copia</button><button class="bottone" data-chiudi>Chiudi</button></div>', nGiocatori() + '/25');
+  const ta = v.querySelector('textarea'); ta.value = testo; ta.select();
+  v.querySelector('#copiaOra').addEventListener('click', async () => {
+    try{ await navigator.clipboard.writeText(testo); v.querySelector('#copiaOra').textContent = 'Copiato'; }
+    catch(e){ ta.select(); v.querySelector('#copiaOra').textContent = 'Usa Ctrl+C'; }
+  });
+  v.querySelector('[data-chiudi]').addEventListener('click', () => v.remove());
+});
+
+el('btnSalva').addEventListener('click', () => {
+  if(versioni.length >= MAX_VERSIONI){ alert('Hai già ' + MAX_VERSIONI + ' versioni salvate. Eliminane una per salvarne un\'altra.'); return; }
+  const nome = prompt('Nome della versione:', 'Versione ' + (versioni.length + 1));
+  if(!nome) return;
+  versioni.push({nome:nome.slice(0,40), rosa:JSON.parse(JSON.stringify(rosa)), n:nGiocatori(), tot:totale(), quando:Date.now()});
+  salvaVersioni(); rendiVersioni();
+});
+
+function caricaVersione(i){
+  const v = versioni[i]; if(!v) return;
+  if(nGiocatori() && !confirm('Apri “' + v.nome + '”? La rosa in lavorazione verrà sostituita (salvala prima, se ti serve).')) return;
+  RUOLI.forEach(r => rosa[r] = (v.rosa[r] || []).filter(id => PER_ID.has(id)));
+  salvaRosa(); rendiTutto();
+}
+function eliminaVersione(i){
+  if(!confirm('Elimini “' + versioni[i].nome + '”?')) return;
+  versioni.splice(i,1); salvaVersioni(); rendiVersioni();
+}
+
+/* ---- confronto ---- */
+el('btnConfronta').addEventListener('click', () => {
+  const opzioni = versioni.map((v,i) => '<option value="' + i + '">' + esc(v.nome) + '</option>').join('') + '<option value="live">Rosa in lavorazione</option>';
+  if(versioni.length < 1){ alert('Salva almeno una versione per poter confrontare.'); return; }
+  const v = apriModale('Confronta versioni',
+    '<div class="riga-conf"><select class="filtro" id="confA">' + opzioni + '</select><b>contro</b><select class="filtro" id="confB">' + opzioni + '</select></div>' +
+    '<div id="esitoConf"></div><div class="azioni" style="padding:12px 0 0"><button class="bottone" data-chiudi>Chiudi</button></div>');
+  const sel = k => k === 'live' ? rosa : versioni[+k].rosa;
+  const nomeDi = k => k === 'live' ? 'Rosa in lavorazione' : versioni[+k].nome;
+  const A = v.querySelector('#confA'), B = v.querySelector('#confB');
+  B.value = versioni.length > 1 ? '1' : 'live';
+  function disegna(){
+    const a = sel(A.value), b = sel(B.value);
+    const setA = new Set(RUOLI.flatMap(r => a[r] || [])), setB = new Set(RUOLI.flatMap(r => b[r] || []));
+    const soloA = [...setA].filter(x => !setB.has(x)).map(x => PER_ID.get(x)).filter(Boolean).sort((x,y) => y.costo - x.costo);
+    const soloB = [...setB].filter(x => !setA.has(x)).map(x => PER_ID.get(x)).filter(Boolean).sort((x,y) => y.costo - x.costo);
+    const comuni = [...setA].filter(x => setB.has(x)).length;
+    const costo = s => [...s].reduce((t,x) => t + (PER_ID.get(x) ? PER_ID.get(x).costo : 0), 0);
+    const riga = g => '<li>' + esc(g.nome) + ' <span style="color:var(--inchiostro-tenue)">' + esc(g.squadra) + '</span> · <b>' + g.costo + '</b></li>';
+    v.querySelector('#esitoConf').innerHTML =
+      '<div class="numeri-conf"><div><b>' + comuni + '</b><span>in comune</span></div>' +
+      '<div><b>' + costo(setA) + '</b><span>' + esc(nomeDi(A.value)).slice(0,14) + '</span></div>' +
+      '<div><b>' + costo(setB) + '</b><span>' + esc(nomeDi(B.value)).slice(0,14) + '</span></div></div>' +
+      '<div class="confronto"><div><h4>Solo in ' + esc(nomeDi(A.value)) + ' (' + soloA.length + ')</h4><ul>' + (soloA.map(riga).join('') || '<li>—</li>') + '</ul></div>' +
+      '<div><h4>Solo in ' + esc(nomeDi(B.value)) + ' (' + soloB.length + ')</h4><ul>' + (soloB.map(riga).join('') || '<li>—</li>') + '</ul></div></div>';
+  }
+  A.addEventListener('change', disegna); B.addEventListener('change', disegna); disegna();
+  v.querySelector('[data-chiudi]').addEventListener('click', () => v.remove());
+});
+
+/* ---- import ---- */
+el('btnScegliFile').addEventListener('click', () => el('fileListone').click());
+el('fileListone').addEventListener('change', e => { if(e.target.files[0]) leggiFile(e.target.files[0]); e.target.value = ''; });
+const dz = el('dropzona');
+['dragenter','dragover'].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.add('sopra'); }));
+['dragleave','drop'].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.remove('sopra'); }));
+dz.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if(f) leggiFile(f); });
+
+el('btnIncolla').addEventListener('click', () => {
+  const v = apriModale('Incolla il listone', '<p class="nota" style="padding:0 0 8px">Una riga per giocatore, con intestazione: Ruolo,Nome,Squadra,Costo</p><textarea class="export" id="areaIncolla" placeholder="Ruolo,Nome,Squadra,Costo&#10;P,MAIGNAN,Milan,34"></textarea><div class="azioni" style="padding:10px 0 0"><button class="bottone primario" id="okIncolla">Aggiorna il listone</button><button class="bottone" data-chiudi>Annulla</button></div>');
+  v.querySelector('#okIncolla').addEventListener('click', () => {
+    try{
+      const r = parseCSV(v.querySelector('#areaIncolla').value);
+      applicaListone(r.dati, 'Listone incollato · ' + new Date().toLocaleDateString('it-IT'));
+      v.remove(); el('bloccoAggiorna').open = true;
+    }catch(err){ alert(err.message); }
+  });
+  v.querySelector('[data-chiudi]').addEventListener('click', () => v.remove());
+});
+
+el('btnRipristina').addEventListener('click', async () => {
+  if(!confirm('Torni al listone di partenza? Le quotazioni importate verranno scartate.')) return;
+  listone = {versione:VERSIONE_BASE, giocatori:costruisci(DATI_BASE, SQUADRE_BASE), diff:null, importato:false};
+  indicizza();
+  RUOLI.forEach(r => rosa[r] = rosa[r].filter(id => PER_ID.has(id)));
+  await scrivi('garga:listone', null); salvaRosa();
+  el('riepilogoDiff').innerHTML = ''; aggiornaSelectSquadre(); rendiTutto();
+});
+
+/* ---- schede mobile ---- */
+function mostraScheda(quale){
+  const r = quale === 'rosa';
+  el('colonnaRosa').style.display = r ? '' : 'none';
+  el('colonnaListone').style.display = r ? 'none' : '';
+  el('tabRosa').setAttribute('aria-pressed', r ? 'true' : 'false');
+  el('tabListone').setAttribute('aria-pressed', r ? 'false' : 'true');
+}
+const mobile = () => window.matchMedia('(max-width:900px)').matches;
+el('tabRosa').addEventListener('click', () => mostraScheda('rosa'));
+el('tabListone').addEventListener('click', () => mostraScheda('listone'));
+el('btnVaiRosa').addEventListener('click', () => { mostraScheda('rosa'); window.scrollTo({top:0, behavior:'smooth'}); });
+window.addEventListener('resize', () => { if(!mobile()){ el('colonnaRosa').style.display = ''; el('colonnaListone').style.display = ''; } });
+
+function aggiornaSelectSquadre(){
+  const s = el('squadra'), attuale = s.value;
+  s.innerHTML = '<option value="">Tutte le squadre</option>';
+  squadreAttive().forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; s.appendChild(o); });
+  s.value = squadreAttive().indexOf(attuale) !== -1 ? attuale : '';
+  filtri.squadra = s.value;
+}
+
+/* ===== avvio ===== */
+(async function(){
+  listone = {versione:VERSIONE_BASE, giocatori:costruisci(DATI_BASE, SQUADRE_BASE), diff:null, importato:false};
+  const salvato = await leggi('garga:listone');
+  if(salvato && salvato.righe && salvato.righe.length){
+    listone = {versione:salvato.versione, importato:true, diff:salvato.diff || null,
+      giocatori:salvato.righe.map(r => ({ruolo:r[0], nome:r[1], squadra:r[2], costo:r[3], stato:r[4] || null, costoPrec:r[5] == null ? null : r[5], id:null}))};
+    const conta = new Map();
+    listone.giocatori.forEach(g => { const b = g.ruolo + '|' + g.nome + '|' + g.squadra; const o = (conta.get(b) || 0) + 1; conta.set(b, o); g.id = chiave(g.ruolo, g.nome, g.squadra, o); });
+  }
+  indicizza();
+
+  const r = await leggi('garga:rosa');
+  if(r) RUOLI.forEach(k => rosa[k] = migra(r[k]));
+  const v = await leggi('garga:versioni');
+  if(Array.isArray(v)) versioni = v.map(x => { RUOLI.forEach(k => x.rosa[k] = migra(x.rosa[k])); return x; });
+
+  el('doveSalvo').textContent = deposito.dove;
+  aggiornaSelectSquadre();
+  rendiTutto();
+  if(mobile()) mostraScheda('listone');
+})();
+</script>
+</body>
+</html>
