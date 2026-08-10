@@ -48,6 +48,11 @@ option{color:var(--inchiostro);background:#fff}
 ::placeholder{color:#8A8A87;opacity:1}
 :focus-visible{outline:2.5px solid var(--rosa);outline-offset:2px}
 
+.senza-js{
+  background:var(--rosa);color:#fff;padding:14px 20px;border-bottom:3px solid var(--inchiostro);
+}
+.senza-js b{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:4px;font-size:14px}
+.senza-js p{margin:0;font-size:13.5px;max-width:70ch;color:#fff}
 .testata{border-bottom:3px solid var(--inchiostro);padding:18px 20px 12px;max-width:1280px;margin:0 auto}
 .occhiello{font-family:var(--display);font-weight:500;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--rosa);margin:0 0 2px}
 .masthead{font-family:var(--display);font-weight:700;font-size:clamp(30px,6.2vw,54px);line-height:.92;letter-spacing:-.01em;text-transform:uppercase;margin:0}
@@ -239,8 +244,15 @@ textarea.export{width:100%;height:190px;padding:10px;border:1.5px solid var(--in
 </head>
 <body>
 
+<noscript>
+  <div class="senza-js">
+    <b>Questa pagina non sta funzionando</b>
+    <p>Serve JavaScript e qui è spento: vedi solo l'impalcatura, senza il listone e senza pulsanti. Succede quando il file viene aperto nell'anteprima dell'app File di iPhone, di Google Drive o di una chat. Aprilo in un browser vero (Safari, Chrome, Firefox) oppure chiedi il link della versione online.</p>
+  </div>
+</noscript>
+
 <header class="testata">
-  <p class="occhiello">Regolamento 2026/27 · scadenza 22.08.2026 ore 17:30 · file 20260807 · V00</p>
+  <p class="occhiello">Regolamento 2026/27 · scadenza 22.08.2026 ore 17:30 · file 20260809 · V00</p>
   <h1 class="masthead">Fanta<em>Gargamella</em><br>costruttore rosa</h1>
   <p class="sottotitolo">600 fantamilioni, 25 giocatori: 3 portieri, 8 difensori, 8 centrocampisti, 6 attaccanti. Quello che risparmi resta tuo per i cambi.</p>
 </header>
