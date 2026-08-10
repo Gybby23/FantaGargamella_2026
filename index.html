@@ -101,6 +101,20 @@ option{color:var(--inchiostro);background:#fff}
 .slot.vuoto{color:#A5A5A2;font-style:italic}
 .slot .nome{font-weight:600}
 .slot .club{color:var(--inchiostro-tenue);font-size:13.5px}
+.slot .quota{width:42px;text-align:right;font-size:12.5px;color:var(--inchiostro-tenue);font-variant-numeric:tabular-nums}
+.reparto.attivo{box-shadow:inset 5px 0 0 var(--rosa)}
+.reparto.attivo .reparto-testa{background:var(--carta-scura)}
+.squadre{padding:10px 12px 14px}
+.sq-riga{display:grid;grid-template-columns:92px minmax(0,1fr) 24px;align-items:center;gap:9px;padding:5px 0;font-size:14.5px;border-top:1px dotted var(--linea)}
+.sq-riga:first-child{border-top:0}
+.sq-punti{display:flex;gap:3px;flex-wrap:wrap}
+.sq-punti i{width:12px;height:12px;display:block}
+.sq-n{font-family:var(--display);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;font-size:16px}
+.sq-riga.limite .sq-n{color:var(--p)}
+.sq-riga.oltre{background:var(--fondo-ko);margin:0 -6px;padding:5px 6px}
+.sq-riga.oltre .sq-n{color:var(--ko)}
+.sq-avviso{margin-top:10px;padding:8px 10px;border-left:4px solid var(--ko);background:var(--fondo-ko);font-size:13.5px}
+.sq-ok{margin-top:10px;font-size:13.5px;color:var(--inchiostro-tenue)}
 .slot .costo{margin-left:auto;font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;font-size:17px}
 .slot .togli{border:1px solid var(--linea);background:transparent;color:var(--ko);width:26px;height:26px;line-height:1;font-size:17px;padding:0;flex:none}
 .slot .togli:hover{background:var(--ko);color:var(--su-nero);border-color:var(--ko)}
@@ -252,7 +266,7 @@ textarea.export{width:100%;height:210px;padding:12px;border:1.5px solid var(--in
 </noscript>
 
 <header class="testata">
-  <p class="occhiello">Regolamento 2026/27 · scadenza 22.08.2026 ore 17:30 · file 20260810 · V02</p>
+  <p class="occhiello">Regolamento 2026/27 · scadenza 22.08.2026 ore 17:30 · file 20260810 · V03</p>
   <h1 class="masthead">Fanta<em>Gargamella</em><br>costruttore rosa</h1>
   <p class="sottotitolo">600 fantamilioni, 25 giocatori: 3 portieri, 8 difensori, 8 centrocampisti, 6 attaccanti. Quello che risparmi resta tuo per i cambi.</p>
 </header>
@@ -297,6 +311,22 @@ textarea.export{width:100%;height:210px;padding:12px;border:1.5px solid var(--in
         <button class="bottone primario" id="btnSalva">Salva versione</button>
         <button class="bottone" id="btnEsporta">Esporta</button>
         <button class="bottone" id="btnSvuota">Svuota</button>
+      </div>
+    </section>
+
+    <section class="pannello">
+      <div class="pannello-testa">
+        <h2>Giocatori per squadra</h2>
+        <span class="meta" id="metaSquadre">—</span>
+      </div>
+      <div class="squadre">
+        <label class="interruttore" style="margin-bottom:9px">Massimo per squadra
+          <select class="filtro" id="soglia" style="padding:5px 7px">
+            <option value="2">2</option><option value="3" selected>3</option>
+            <option value="4">4</option><option value="5">5</option>
+          </select>
+        </label>
+        <div id="grigliaSquadre"></div>
       </div>
     </section>
 
@@ -464,6 +494,7 @@ let listone = {versione:VERSIONE_BASE, giocatori:[], diff:null, importato:false}
 let PER_ID = new Map();
 let rosa = {P:[], D:[], C:[], A:[]};
 let versioni = [];
+let soglia = 3;
 let filtri = {ruolo:'T', testo:'', squadra:'', ordine:'costo-desc', soloBudget:false, nascondiPresi:true, maxCosto:null, soloNovita:false};
 
 function chiave(ruolo, nome, squadra, occ){ return ruolo + '|' + nome + '|' + squadra + (occ > 1 ? '|' + occ : ''); }
@@ -564,18 +595,22 @@ function rendiTabellone(){
     : '<strong>Rosa valida</strong><br>25 giocatori, ' + tot + ' FM spesi. Ti restano <b>' + rim + ' FM</b> per i cambi.';
 }
 
+const perc = v => Math.round(v / BUDGET * 100) + '%';
+
 function rendiReparti(){
   const sp = spese();
-  el('reparti').innerHTML = RUOLI.map(r => {
+  const ordine = filtri.ruolo === 'T' ? RUOLI : [filtri.ruolo].concat(RUOLI.filter(r => r !== filtri.ruolo));
+  el('reparti').innerHTML = ordine.map(r => {
     const scelti = rosa[r].map(id => PER_ID.get(id)).filter(Boolean).sort((a,b) => b.costo - a.costo);
     const righe = scelti.map(g =>
       '<div class="slot entra"><span class="nome">' + esc(g.nome) + '</span> <span class="club">' + esc(g.squadra) + '</span>' +
       (g.stato === 'variato' ? '<span class="tag t-variato">' + (g.costo > g.costoPrec ? '+' : '') + (g.costo - g.costoPrec) + '</span>' : '') +
       '<span class="costo">' + g.costo + '</span>' +
+      '<span class="quota">' + perc(g.costo) + '</span>' +
       '<button class="togli" data-togli="' + g.id + '" aria-label="Togli ' + esc(g.nome) + '">×</button></div>');
     for(let i = scelti.length; i < QUOTA[r]; i++) righe.push('<div class="slot vuoto">posto libero</div>');
-    return '<div class="reparto"><div class="reparto-testa"><span class="pallino" style="background:' + COLORE[r] + '"></span>' +
-      '<span class="reparto-nome">' + NOME_RUOLO[r] + '</span><span class="reparto-spesa">' + sp[r] + ' FM</span>' +
+    return '<div class="reparto' + (filtri.ruolo === r ? ' attivo' : '') + '"><div class="reparto-testa"><span class="pallino" style="background:' + COLORE[r] + '"></span>' +
+      '<span class="reparto-nome">' + NOME_RUOLO[r] + '</span><span class="reparto-spesa">' + sp[r] + ' FM · ' + perc(sp[r]) + '</span>' +
       '<span class="reparto-conta' + (scelti.length === QUOTA[r] ? ' pieno' : '') + '">' + scelti.length + '/' + QUOTA[r] + '</span></div>' +
       righe.join('') + '</div>';
   }).join('');
@@ -642,6 +677,36 @@ function verificaVersioni(){
   salvaVersioni();
 }
 
+function rendiSquadre(){
+  const conta = new Map();
+  RUOLI.forEach(r => rosa[r].forEach(id => {
+    const g = PER_ID.get(id); if(!g) return;
+    if(!conta.has(g.squadra)) conta.set(g.squadra, []);
+    conta.get(g.squadra).push(g.ruolo);
+  }));
+  const righe = Array.from(conta.entries())
+    .sort((a,b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+  el('metaSquadre').textContent = righe.length ? righe.length + ' club su 20' : '—';
+
+  if(!righe.length){
+    el('grigliaSquadre').innerHTML = '<p class="sq-ok" style="margin:0">Qui vedrai da quali club stai pescando, man mano che scegli.</p>';
+    return;
+  }
+  const oltre = righe.filter(x => x[1].length > soglia);
+  el('grigliaSquadre').innerHTML = righe.map(x => {
+    const sq = x[0], ruoli = x[1].slice().sort((a,b) => RUOLI.indexOf(a) - RUOLI.indexOf(b));
+    const cls = ruoli.length > soglia ? ' oltre' : (ruoli.length === soglia ? ' limite' : '');
+    return '<div class="sq-riga' + cls + '"><span>' + esc(sq) + '</span>' +
+      '<span class="sq-punti">' + ruoli.map(r => '<i style="background:' + COLORE[r] + '" title="' + NOME_RUOLO[r] + '"></i>').join('') + '</span>' +
+      '<span class="sq-n">' + ruoli.length + '</span></div>';
+  }).join('') +
+  (oltre.length
+    ? '<div class="sq-avviso"><b>Oltre il limite che hai fissato:</b> ' +
+      oltre.map(x => esc(x[0]) + ' (' + x[1].length + ')').join(', ') +
+      '. Se quel club salta una giornata, ti si svuota mezza formazione.</div>'
+    : '<p class="sq-ok">Nessun club oltre ' + soglia + '. Concentrazione sotto controllo.</p>');
+}
+
 function rendiVersioni(){
   el('metaVersioni').textContent = versioni.length + '/' + MAX_VERSIONI;
   if(!versioni.length){ el('listaVersioni').innerHTML = '<p class="nota" style="padding:10px 0 0">Nessuna versione salvata. Componi la rosa e premi “Salva versione”.</p>'; return; }
@@ -655,7 +720,7 @@ function rendiVersioni(){
   }).join('');
 }
 
-const rendiTutto = () => { rendiTabellone(); rendiReparti(); rendiLista(); rendiVersioni(); };
+const rendiTutto = () => { rendiTabellone(); rendiReparti(); rendiSquadre(); rendiLista(); rendiVersioni(); };
 
 /* ===== azioni rosa ===== */
 function aggiungi(id){
@@ -769,9 +834,10 @@ document.addEventListener('click', ev => {
   if(chip){
     filtri.ruolo = chip.dataset.ruolo;
     document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x === chip ? 'true' : 'false'));
-    rendiLista();
+    rendiReparti(); rendiLista();
   }
 });
+el('soglia').addEventListener('change', e => { soglia = parseInt(e.target.value, 10); scrivi('garga:soglia', soglia); rendiSquadre(); });
 el('cerca').addEventListener('input', e => { filtri.testo = e.target.value.trim(); rendiLista(); });
 el('squadra').addEventListener('change', e => { filtri.squadra = e.target.value; rendiLista(); });
 el('ordine').addEventListener('change', e => { filtri.ordine = e.target.value; rendiLista(); });
@@ -916,6 +982,8 @@ function aggiornaSelectSquadre(){
 
   const r = await leggi('garga:rosa');
   if(r) RUOLI.forEach(k => rosa[k] = migra(r[k]));
+  const sg = await leggi('garga:soglia');
+  if(sg) { soglia = sg; el('soglia').value = String(sg); }
   const v = await leggi('garga:versioni');
   if(Array.isArray(v)) versioni = v.map(x => { RUOLI.forEach(k => x.rosa[k] = migra(x.rosa[k])); return x; });
   verificaVersioni();
